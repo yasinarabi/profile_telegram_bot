@@ -1,23 +1,22 @@
 import mysql.connector
-import time
+from tools.config import Config
 
-hostname = "localhost"
-username = "profilebot"
-password = "Pass@1234"
-database = "profilebot"
+config = Config()
+db_config = config.get_db()
 
-my_db = mysql.connector.connect(host=hostname, user=username, passwd=password, database=database)
-my_cursor = my_db.cursor()
 
-class Mysql_DB:
+class MysqlDB:
     def __init__(self):
-        self.db = mysql.connector.connect(host=hostname, user=username, passwd=password, database=database)
-        self.cursor = my_db.cursor()
+        self.db = mysql.connector.connect(host=db_config["host"],
+                                          user=db_config["user"],
+                                          passwd=db_config["pass"],
+                                          database=db_config["name"])
+        self.cursor = self.db.cursor()
         if not self.initialized():
             self.initialize()
 
     def initialized(self):
-        query = f"SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '{database}';"
+        query = f"SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '{db_config['name']}';"
         self.cursor.execute(query)
         count_tables = self.cursor.fetchall()[0][0]
         return count_tables >= 3
@@ -54,7 +53,8 @@ class Mysql_DB:
             self.db.commit()
 
     def exist_in_start(self, user_id):
-        query = f"SELECT `start`.`id` FROM `start` WHERE `start`.`id` = {user_id};"
+        query = f"SELECT `start`.`id` FROM `start` WHERE " \
+                f"`start`.`id` = {user_id};"
         self.cursor.execute(query)
         result = self.cursor.fetchall()
         return len(result) > 0
@@ -65,6 +65,7 @@ class Mysql_DB:
         self.db.commit()
 
     def save_message(self, user_id, message):
-        query = f"INSERT INTO `message` (`user_id`, `message`) VALUES ({user_id}, '{message}');"
+        query = f"INSERT INTO `message` (`user_id`, `message`) " \
+                f"VALUES ({user_id}, '{message}');"
         self.cursor.execute(query)
         self.db.commit()

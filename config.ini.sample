@@ -1,0 +1,10 @@
+[telegram]
+token=123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789
+manager_id=123456789
+programmer_id=123456789
+[mysql]
+host=localhost
+port=3306
+user=profilebot
+pass=PASSWORD
+name=profilebot

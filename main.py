@@ -1,11 +1,12 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-import process
-import db
+from tools.config import Config
+from tools.process import add_fg
+from tools.db import MysqlDB
 import os
 
-updater = Updater("TOKEN", use_context=True)
-database = db.Mysql_DB()
-
+database = MysqlDB()
+config = Config()
+updater = Updater(config.get_token(), use_context=True)
 
 def tele_pic(update, context):
     user_id = str(update.effective_chat.id)
@@ -14,7 +15,7 @@ def tele_pic(update, context):
     file_id = update.message.photo[-1]
     new_file = context.bot.getFile(file_id)
     new_file.download(photo_name)
-    process.add_fg(photo_name)
+    add_fg(photo_name)
     photo = open(new_photo_name, 'rb')
     context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo)
     photo.close()
