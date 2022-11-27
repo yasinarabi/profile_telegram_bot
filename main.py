@@ -54,9 +54,34 @@ def tele_file(update, context):
 
 
 def start(update, context):
+    user_id = str(update.effective_chat.id)
+    message = "ٌWelcome To Profile Bot\n" \
+              "You can contact us by sending messages in bot chat.\n"
     database.start_put(update.effective_chat.id)
-    context.bot.send_message(chat_id=update.effective_chat.id, text="ٌWelcome To Profile Bot")
-    context.bot.send_message(chat_id=update.effective_chat.id, text="You can contact us with sending messages in the bot chat ")
+    context.bot.send_message(chat_id=update.effective_chat.id, text=message)
+    # Process Profile Photo of User
+    profile_photos = context.bot.get_user_profile_photos(update.effective_user.id)
+    if profile_photos["total_count"] > 0:
+        # Download user profile photo
+        photo_name = f"./tmp/{user_id}.jpg"
+        result_photo_name = f"./tmp/result{user_id}.jpg"
+        profile_photo_id = profile_photos["photos"][0][-1]["file_id"]
+        new_file = context.bot.getFile(profile_photo_id)
+        new_file.download(photo_name)
+        # Process photo
+        add_fg(photo_name, result_photo_name)
+        # Send result to user
+        photo = open(result_photo_name, 'rb')
+        context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo)
+        photo.close()
+        # Delete user photo and result photo
+        if os.path.exists(photo_name):
+            os.remove(photo_name)
+        if os.path.exists(result_photo_name):
+            os.remove(result_photo_name)
+        # Save log to database
+        database.add_process(update.effective_chat.id)
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Send your photos to create profiles.")
 
 
 def ex_message(update, context):
@@ -71,6 +96,9 @@ def message(update, context):
 
 
 if __name__ == '__main__':
+
+    if not os.path.exists("./tmp"):
+        os.makedirs("./tmp")
     dp = updater.dispatcher
 
     start_handler = CommandHandler("start", start)
@@ -89,6 +117,6 @@ if __name__ == '__main__':
     updater.idle()
 
 
-# TODO: 1. process and send profile image at start
+# TODO:
 #       2. Create tmp folder at start if not exists
 #       3. Update README.md
