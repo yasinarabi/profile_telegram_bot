@@ -1,35 +1,41 @@
 import cv2
 
+FOREGROUND = cv2.imread("foreground.png", cv2.IMREAD_UNCHANGED)
+# normalize alpha channel from 0-255 to 0-1
+ALPHA = FOREGROUND[:,:,3] / 255.0
 
-def add_fg(img_name):
-    img1 = cv2.imread(img_name, cv2.IMREAD_COLOR)
-    img2 = cv2.imread("foreground.jpg", cv2.IMREAD_COLOR)
-    heigth = img1.shape[0]
-    width = img1.shape[1]
+def crop_and_resize_to_640X640(image):
+    heigth = image.shape[0]
+    width = image.shape[1]
     if heigth != 640 or width != 640:
         if width < heigth:
             new_width = 640
             new_height = int(heigth * 640 / width)
-            img1 = cv2.resize(img1, (new_width, new_height))
+            image = cv2.resize(image, (new_width, new_height))
             space = new_height - 640
             space1 = int(space/2)
             space2 = space - space1
-            img1 = img1[space1:new_height - space2, 0:new_width]
+            image = image[space1:new_height - space2, 0:new_width]
         else:
             new_height = 640
             new_width = int(width * 640 / heigth)
-            img1 = cv2.resize(img1, (new_width, new_height))
-            print(img1.shape)
+            image = cv2.resize(image, (new_width, new_height))
             space = new_width - 640
             space1 = int(space / 2)
             space2 = space - space1
-            print(space1)
-            print(space2)
-            img1 = img1[0:new_height, space1:new_width-space2]
-    img2gray = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
-    ret, mask = cv2.threshold(img2gray, 77, 255, cv2.THRESH_BINARY)
-    mask_inv = cv2.bitwise_not(mask)
-    img1_bg = cv2.bitwise_and(img1, img1, mask=mask)
-    img2_fg = cv2.bitwise_and(img2, img2, mask=mask_inv)
-    img = cv2.add(img1_bg, img2_fg)
-    cv2.imwrite("new" + img_name, img)
+            image = image[0:new_height, space1:new_width-space2]
+    return image
+
+def add_fg(img_name):
+
+    # Read image
+    background = cv2.imread(img_name, cv2.IMREAD_COLOR)
+    background = crop_and_resize_to_640X640(background)
+
+    # set adjusted colors
+    for color in range(0, 3):
+        background[:,:,color] = ALPHA * FOREGROUND[:,:,color] + \
+            background[:,:,color] * (1 - ALPHA)
+
+    # Save image
+    cv2.imwrite("new" + img_name, background)
