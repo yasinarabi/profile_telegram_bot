@@ -3,7 +3,8 @@ import process
 import db
 import os
 
-updater = Updater("902896754:AAEceV8ktEaTaAoeQrjeDpfLwypD9DeOKF8", use_context=True)
+updater = Updater("TOKEN", use_context=True)
+database = db.Mysql_DB()
 
 
 def tele_pic(update, context):
@@ -21,24 +22,24 @@ def tele_pic(update, context):
         os.remove(photo_name)
     if os.path.exists(new_photo_name):
         os.remove(new_photo_name)
-    db.add_process(user_id)
+    database.add_process(update.effective_chat.id)
 
 
 def start(update, context):
-    db.start_put(str(update.effective_chat.id))
-    context.bot.send_message(chat_id=update.effective_chat.id, text="خوش آمدید\nاین ربات کاری است از بسیج دانشجویی داشگاه شهید باهنر کرمان\nبرای حمایت از ما در کانال ما عضو شوید.\n@bdbahonar")
-    context.bot.send_message(chat_id=update.effective_chat.id, text="برای ادامه عکس مورد نظر خود را برای ربات بفرستید.\nهمچنین می توانید نظرات خود را از طریق ربات برای ما ارسال کنید.")
+    database.start_put(update.effective_chat.id)
+    context.bot.send_message(chat_id=update.effective_chat.id, text="ٌWelcome To Profile Bot")
+    context.bot.send_message(chat_id=update.effective_chat.id, text="You can contact us with sending messages in the bot chat ")
 
 
 def ex_message(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="پیام دریافت شده معتبر نیست.\nخواهشمندیم عکس مورد نظر خود را به صورت photo و با سایز مناسب به ربات ارسال کنید.")
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Entered message format is not valid")
 
 
 def message(update, context):
-    user_id = str(update.effective_chat.id)
+    user_id = update.effective_chat.id
     text = update.message.text
-    db.save_message(user_id, text)
-    context.bot.send_message(chat_id=user_id, text="با تشکر\nنظر شما ثبت شد و به اطلاع تیم پشتیبانی رسید.")
+    database.save_message(user_id, text)
+    context.bot.send_message(chat_id=user_id, text="Your message saved and forwarded to support team.\nThanks")
 
 
 if __name__ == '__main__':
