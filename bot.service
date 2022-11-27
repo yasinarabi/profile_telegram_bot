@@ -1,0 +1,8 @@
+[Unit]
+Description=Profile Telegram Bot
+
+[Service]
+WorkingDirectory=/path/to/project
+ExecStart=/home/path/to/project/.venv/bin/python /path/to/project/main.py
+Restart=always
+RestartSec=3
