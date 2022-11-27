@@ -1,7 +1,7 @@
 import cv2
 
 FOREGROUND = cv2.imread("foreground.png", cv2.IMREAD_UNCHANGED)
-# normalize alpha channel from 0-255 to 0-1
+# Normalize alpha channel from 0-255 to 0-1
 ALPHA = FOREGROUND[:,:,3] / 255.0
 
 def crop_and_resize_to_640X640(image):
@@ -26,16 +26,14 @@ def crop_and_resize_to_640X640(image):
             image = image[0:new_height, space1:new_width-space2]
     return image
 
-def add_fg(img_name):
-
+def add_fg(input_img_name, output_img_name):
     # Read image
-    background = cv2.imread(img_name, cv2.IMREAD_COLOR)
+    background = cv2.imread(input_img_name, cv2.IMREAD_COLOR)
     background = crop_and_resize_to_640X640(background)
-
     # set adjusted colors
     for color in range(0, 3):
         background[:,:,color] = ALPHA * FOREGROUND[:,:,color] + \
             background[:,:,color] * (1 - ALPHA)
-
     # Save image
-    cv2.imwrite("new" + img_name, background)
+    cv2.imwrite(output_img_name, background)
+    # Return saved image name

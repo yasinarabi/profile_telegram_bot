@@ -9,20 +9,25 @@ config = Config()
 updater = Updater(config.get_token(), use_context=True)
 
 def tele_pic(update, context):
+    # Download user photo
     user_id = str(update.effective_chat.id)
-    photo_name = user_id + '.jpg'
-    new_photo_name = "new" + photo_name
+    photo_name = f"./tmp/{user_id}.jpg"
+    result_photo_name = f"./tmp/result{user_id}.jpg"
     file_id = update.message.photo[-1]
     new_file = context.bot.getFile(file_id)
     new_file.download(photo_name)
-    add_fg(photo_name)
-    photo = open(new_photo_name, 'rb')
+    # Process photo
+    add_fg(photo_name, result_photo_name)
+    # Send result to user
+    photo = open(result_photo_name, 'rb')
     context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo)
     photo.close()
+    # Delete user photo and result photo
     if os.path.exists(photo_name):
         os.remove(photo_name)
-    if os.path.exists(new_photo_name):
-        os.remove(new_photo_name)
+    if os.path.exists(result_photo_name):
+        os.remove(result_photo_name)
+    # Save log to database
     database.add_process(update.effective_chat.id)
 
 
