@@ -1,7 +1,7 @@
 APScheduler==3.6.3
 backports.zoneinfo==0.2.1
 cachetools==4.2.2
-certifi==2022.9.24
+certifi==2023.7.22
 mysql-connector-python==8.0.31
 numpy==1.23.5
 opencv-python==4.6.0.66
